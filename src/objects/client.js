@@ -1,0 +1,120 @@
+const today = (resta = 0) => {
+  let today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const yyyy = today.getFullYear() - resta;
+  return today = `${yyyy}-${mm}-${dd}`;
+}
+
+export const interviewInicialState = {
+  name: "",
+  name2: "",
+  first_last_name: "",
+  sec_last_name: "",
+  civil_status: "",
+  gender: "",
+  type_housing: "",
+  living_there_y: 0,
+  living_there_m: 0,
+  email: "",
+  cellphone: "",
+  phone: "",// Info del cliente que no esta en sus documentos
+  dependence: "INSTITUTO HIDALGUENSE DE EDUCACIÓN",
+  place: "",
+  occupation: "",
+  job: "",
+  time_working_y: 0,
+  time_working_m: 0,
+  job_phone: "",
+  extension: "",
+  type: "",
+  street: "",
+  number: "",
+  int_number: "",
+  suburb: "",
+  crosses: "",
+  town: "",
+  state: "Hidalgo",
+  postal_code: "",
+  term: "",
+  code: "",
+  promotor_name: "",
+  amount: "",
+  city: "",
+  date: today(),
+  question: "",
+  con_name: "",
+  con_nacionality: "Mexicana",
+  con_birth: today(30),
+  ref1_name: "",
+  ref1_phone: "",
+  ref1_relationship: "",
+  ref1_longer: "",
+  ref2_name: "",
+  ref2_phone: "",
+  ref2_relationship: "",
+  ref2_longer: "",
+};
+
+export const dependencies = [
+  'INSTITUTO HIDALGUENSE DE EDUCACIÓN',
+  'GOBIERNO DEL ESTADO DE HIDALGO',
+  'COLEGIO DE BACHILLERES DEL ESTADO DE HIDALGO',
+  'SERVICIOS DE SALUD MORELOS 3',
+  'SERVICIOS DE SALUD MORELOS 3.5',
+  'CODISPERSA',
+  'FYDNEMS',
+  'SERV DE CONTRAL. ADMÓN. Y DE PERSONAL',
+  'SERVICIOS DE PERSONAL AUTOMOTRIZ',
+  'TENENCIA Y ADMINIST. ACCIONARIA',
+  'TRASINMEX',
+]
+
+export const estadosDeVentas = [
+  'Hidalgo',
+  'Morelos',
+  'CDMX',
+  'Oaxaca',
+]
+
+export const plazo = [
+  '24',
+  '36',
+  '48',
+  '72',
+  '96',
+]
+
+export const rutas = [
+  'ineA',
+  'ineR',
+  'cDomicilio',
+  'eCuenta',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+  'talones',
+]
