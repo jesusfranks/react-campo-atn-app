@@ -1,28 +1,53 @@
 import React from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { useState } from "react";
+import axios from "axios";
+import { Button, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import { trackPromise, usePromiseTracker } from "react-promise-tracker";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
+import FileInputs from "./FileInputs";
 import { useForm } from "../hooks/useForm";
 import {
   interviewInicialState,
   dependencies,
   estadosDeVentas,
   plazo,
+  token,
+  clienteRespuesta,
+  tiposReferencias,
+  tipoCredito,
+  APIURL,
 } from "../objects/client";
-import FileInputs from './FileInputs';
 
-export const InterviewForm = () => {
-  const [formValues, handleInputChange] = useForm(interviewInicialState);
-  const [status, setstatus] = useState(false);
-  const [cliente, setCliente] = useState('');
+const InterviewForm = () => {
+  const [formValues, handleInputChange, handleInputChangeToUpperCase] = useForm(
+    interviewInicialState
+  );
+  const [cliente, setCliente] = useState(clienteRespuesta);
+  const { promiseInProgress } = usePromiseTracker();
+
   const enviarDatos = async (e) => {
-    console.log(formValues);
     e.preventDefault();
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    trackPromise(
+      axios
+        .post(`${APIURL}/api/v1/clients/newInterview`, formValues, config)
+        .then(function (response) {
+          setCliente(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+    );
   };
 
   return (
     <>
       <Container>
-        <h1 className="text-center mb-3 mt-3 fontWeight">Entrevista a nuevo cliente</h1>
+        <h1 className="text-center mb-3 mt-3 fontWeight">
+          Entrevista a nuevo cliente
+        </h1>
         <Form onSubmit={enviarDatos}>
           <h4 className="fontWeight">Datos del nuevo crédito</h4>
           <Row>
@@ -61,6 +86,60 @@ export const InterviewForm = () => {
               </FloatingLabel>
             </Col>
             <Col md>
+              <FloatingLabel
+                controlId="floatingInputMSG"
+                label="Tipo de crédito"
+                className="mb-3"
+              >
+                <Form.Select
+                  id="msg"
+                  name="msg"
+                  value={formValues.msg}
+                  onChange={handleInputChange}
+                >
+                  {tipoCredito.map((msg) => {
+                    return (
+                      <option key={msg} value={msg}>
+                        {msg}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
+              </FloatingLabel>
+            </Col>
+          </Row>
+          <Row>
+            <Col md>
+              <FloatingLabel
+                controlId="city"
+                label="Ciudad y estado de la venta"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="city"
+                  value={formValues.city}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="date"
+                label="Fecha de venta"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="date"
+                  placeholder="0"
+                  name="date"
+                  value={formValues.date}
+                  onChange={handleInputChange}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
               <Form.Group className="mb-3" controlId="groupQuestion">
                 <Form.Label className="fontWeight">¿Crédito previo?</Form.Label>
                 <br></br>
@@ -84,38 +163,6 @@ export const InterviewForm = () => {
                   inline
                 />
               </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md>
-              <FloatingLabel
-                controlId="city"
-                label="Ciudad y estado de la venta"
-                className="mb-3"
-              >
-                <Form.Control
-                  type="text"
-                  placeholder="0"
-                  name="city"
-                  value={formValues.city}
-                  onChange={handleInputChange}
-                />
-              </FloatingLabel>
-            </Col>
-            <Col md>
-              <FloatingLabel
-                controlId="date"
-                label="Fecha de venta"
-                className="mb-3"
-              >
-                <Form.Control
-                  type="date"
-                  placeholder="0"
-                  name="date"
-                  value={formValues.date}
-                  onChange={handleInputChange}
-                />
-              </FloatingLabel>
             </Col>
           </Row>
           <h3 className="fontWeight">Información de la dependencia</h3>
@@ -153,7 +200,7 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="place"
                   value={formValues.place}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
@@ -170,7 +217,7 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="occupation"
                   value={formValues.occupation}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
@@ -185,14 +232,14 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="job"
                   value={formValues.job}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
             <Col md>
               <FloatingLabel
                 controlId="floatingInputTWY"
-                label="Años de atigüedad"
+                label="Años de antigüedad"
                 className="mb-3"
               >
                 <Form.Control
@@ -207,7 +254,7 @@ export const InterviewForm = () => {
             <Col md>
               <FloatingLabel
                 controlId="floatingInputTWM"
-                label="Meses de atigüedad"
+                label="Meses de antigüedad"
                 className="mb-3"
               >
                 <Form.Control
@@ -253,7 +300,9 @@ export const InterviewForm = () => {
             </Col>
             <Col md>
               <Form.Group className="mb-3" controlId="groupGender">
-                <Form.Label className="fontWeight">Tipo de contratación</Form.Label>
+                <Form.Label className="fontWeight">
+                  Tipo de contratación
+                </Form.Label>
                 <br></br>
                 <Form.Check
                   name="type"
@@ -308,7 +357,7 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="street"
                   value={formValues.street}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
@@ -355,7 +404,7 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="suburb"
                   value={formValues.suburb}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
@@ -370,7 +419,7 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="town"
                   value={formValues.town}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
@@ -424,12 +473,14 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="crosses"
                   value={formValues.crosses}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
           </Row>
-          <h5 className="text-center mb-3">Nombre Completo del cliente</h5>
+          <h4 className="text-center fontWeight mb-3">
+            Nombre Completo del cliente
+          </h4>
           <Row>
             <Col md>
               <Form.Group className="mb-3" controlId="groupFirst_last_name">
@@ -438,7 +489,7 @@ export const InterviewForm = () => {
                   placeholder="Primer apellido"
                   name="first_last_name"
                   value={formValues.first_last_name.toUpperCase()}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </Form.Group>
             </Col>
@@ -449,7 +500,7 @@ export const InterviewForm = () => {
                   placeholder="Segundo apellido"
                   name="sec_last_name"
                   value={formValues.sec_last_name.toUpperCase()}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </Form.Group>
             </Col>
@@ -461,7 +512,7 @@ export const InterviewForm = () => {
                   placeholder="Primer nombre"
                   name="name"
                   value={formValues.name.toUpperCase()}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </Form.Group>
             </Col>
@@ -472,7 +523,7 @@ export const InterviewForm = () => {
                   placeholder="Otros nombres..."
                   name="name2"
                   value={formValues.name2.toUpperCase()}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
                 <Form.Text className="text-muted">(Opcional)</Form.Text>
               </Form.Group>
@@ -513,7 +564,7 @@ export const InterviewForm = () => {
                   id="civil_status"
                   label="Soltero"
                   type="radio"
-                  value="Soltero"
+                  value="SOLTERO"
                   onClick={handleInputChange}
                   inline
                   required
@@ -523,7 +574,7 @@ export const InterviewForm = () => {
                   id="civil_status"
                   label="Casado"
                   type="radio"
-                  value="Casado"
+                  value="CASADO"
                   onClick={handleInputChange}
                   inline
                 />
@@ -532,7 +583,7 @@ export const InterviewForm = () => {
                   id="civil_status"
                   label="Divorciado"
                   type="radio"
-                  value="Divorciado"
+                  value="DIVORCIADO"
                   onClick={handleInputChange}
                   inline
                 />
@@ -541,7 +592,7 @@ export const InterviewForm = () => {
                   id="civil_status"
                   label="Viudo"
                   type="radio"
-                  value="Viudo"
+                  value="VIUDO"
                   onClick={handleInputChange}
                   inline
                 />
@@ -558,7 +609,7 @@ export const InterviewForm = () => {
                   id="type_housing"
                   label="Propia"
                   type="radio"
-                  value="Propia"
+                  value="PROPIA"
                   onClick={handleInputChange}
                   inline
                   required
@@ -568,7 +619,7 @@ export const InterviewForm = () => {
                   id="type_housing"
                   label="Renta"
                   type="radio"
-                  value="Renta"
+                  value="RENTA"
                   onClick={handleInputChange}
                   inline
                 />
@@ -577,7 +628,7 @@ export const InterviewForm = () => {
                   id="type_housing"
                   label="Familiar"
                   type="radio"
-                  value="Familiar"
+                  value="FAMILIAR"
                   onClick={handleInputChange}
                   inline
                 />
@@ -666,7 +717,7 @@ export const InterviewForm = () => {
             <Col md>
               <FloatingLabel
                 controlId="floatingInputcon_name"
-                label="Nombre completo"
+                label="Nombre"
                 className="mb-3"
               >
                 <Form.Control
@@ -674,10 +725,57 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="con_name"
                   value={formValues.con_name}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputcon_name2"
+                label="Otros nombres (opcional)"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="con_name2"
+                  value={formValues.con_name2}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputcon_first_last_name"
+                label="Primer apellido"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="con_first_last_name"
+                  value={formValues.con_first_last_name}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputcon_sec_last_name"
+                label="Segundo apellido"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="con_sec_last_name"
+                  value={formValues.con_sec_last_name}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+          </Row>
+          <Row>
             <Col md>
               <FloatingLabel
                 controlId="floatingInputcon_nacionality"
@@ -689,7 +787,7 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="con_nacionality"
                   value={formValues.con_nacionality}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
@@ -714,8 +812,8 @@ export const InterviewForm = () => {
           <Row>
             <Col md>
               <FloatingLabel
-                controlId="ref1_name"
-                label="Nombre completo"
+                controlId="floatingInputref1_name"
+                label="Nombre"
                 className="mb-3"
               >
                 <Form.Control
@@ -723,10 +821,57 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="ref1_name"
                   value={formValues.ref1_name}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputref1_name2"
+                label="Otros nombres (opcional)"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="ref1_name2"
+                  value={formValues.ref1_name2}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputref1_first_last_name"
+                label="Primer apellido"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="ref1_first_last_name"
+                  value={formValues.ref1_first_last_name}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputref1_sec_last_name"
+                label="Segundo apellido"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="ref1_sec_last_name"
+                  value={formValues.ref1_sec_last_name}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+          </Row>
+          <Row>
             <Col md>
               <FloatingLabel
                 controlId="ref1_phone"
@@ -748,19 +893,26 @@ export const InterviewForm = () => {
                 label="Relación"
                 className="mb-3"
               >
-                <Form.Control
-                  type="text"
-                  placeholder="0"
+                <Form.Select
+                  id="ref1_relationship"
                   name="ref1_relationship"
                   value={formValues.ref1_relationship}
                   onChange={handleInputChange}
-                />
+                >
+                  {tiposReferencias.map((relation) => {
+                    return (
+                      <option key={relation} value={relation}>
+                        {relation}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
               </FloatingLabel>
             </Col>
             <Col md>
               <FloatingLabel
                 controlId="ref1_longer"
-                label="Meses de atigüedad"
+                label="Antigüedad"
                 className="mb-3"
               >
                 <Form.Control
@@ -777,8 +929,8 @@ export const InterviewForm = () => {
           <Row>
             <Col md>
               <FloatingLabel
-                controlId="ref2_name"
-                label="Nombre completo"
+                controlId="floatingInputref2_name"
+                label="Nombre"
                 className="mb-3"
               >
                 <Form.Control
@@ -786,10 +938,57 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="ref2_name"
                   value={formValues.ref2_name}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputref2_name2"
+                label="Otros nombres (opcional)"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="ref2_name2"
+                  value={formValues.ref2_name2}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputref2_first_last_name"
+                label="Primer apellido"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="ref2_first_last_name"
+                  value={formValues.ref2_first_last_name}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+            <Col md>
+              <FloatingLabel
+                controlId="floatingInputref2_sec_last_name"
+                label="Segundo apellido"
+                className="mb-3"
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="0"
+                  name="ref2_sec_last_name"
+                  value={formValues.ref2_sec_last_name}
+                  onChange={handleInputChangeToUpperCase}
+                />
+              </FloatingLabel>
+            </Col>
+          </Row>
+          <Row>
             <Col md>
               <FloatingLabel
                 controlId="ref2_phone"
@@ -811,19 +1010,26 @@ export const InterviewForm = () => {
                 label="Relación"
                 className="mb-3"
               >
-                <Form.Control
-                  type="text"
-                  placeholder="0"
+                <Form.Select
+                  id="ref2_relationship"
                   name="ref2_relationship"
                   value={formValues.ref2_relationship}
                   onChange={handleInputChange}
-                />
+                >
+                  {tiposReferencias.map((relation) => {
+                    return (
+                      <option key={relation} value={relation}>
+                        {relation}
+                      </option>
+                    );
+                  })}
+                </Form.Select>
               </FloatingLabel>
             </Col>
             <Col md>
               <FloatingLabel
                 controlId="ref2_longer"
-                label="Meses de atigüedad"
+                label="Antigüedad"
                 className="mb-3"
               >
                 <Form.Control
@@ -864,20 +1070,37 @@ export const InterviewForm = () => {
                   placeholder="0"
                   name="promotor_name"
                   value={formValues.promotor_name}
-                  onChange={handleInputChange}
+                  onChange={handleInputChangeToUpperCase}
                 />
               </FloatingLabel>
             </Col>
           </Row>
-
           <div className="text-center mb-3 mt-3">
-            <Button variant="success" type="submit">
-              Enviar a mesa de control
-            </Button>
+            {promiseInProgress ? (
+              cliente.id > 0 ? null : (
+                <Button variant="warning" disabled>
+                  <Spinner
+                    as="span"
+                    animation="grow"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  Enviando...
+                </Button>
+              )
+            ) : cliente.id > 0 ? null : (
+              <Button variant="success" type="submit">
+                Enviar formulario a mesa de control
+              </Button>
+            )}
           </div>
         </Form>
+
+        {cliente.id > 0 ? <FileInputs client_id={cliente.id} /> : null}
       </Container>
-      <FileInputs cliente={cliente} status={status}/>
     </>
   );
 };
+
+export default InterviewForm;

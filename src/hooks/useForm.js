@@ -14,5 +14,12 @@ export const useForm = (initialState = {}) => {
     });
   };
 
-  return [values, handleInputChange, reset];
+  const handleInputChangeToUpperCase = ({ target }) => {
+    setValues({
+      ...values,
+      [target.name]: target.value.toUpperCase(),
+    });
+  };
+
+  return [values, handleInputChange, handleInputChangeToUpperCase, reset];
 };

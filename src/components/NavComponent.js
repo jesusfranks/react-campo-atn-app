@@ -10,9 +10,7 @@ export const NavComponent = () => {
             <img
               alt=""
               src="/static/atn_logo.png"
-              width="150"
-              height="70"
-              className="d-inline-block align-top"
+              style={{maxWidth: '120px', marginTop: '-5px'}}
             />
           </Navbar.Brand>
         </Container>
